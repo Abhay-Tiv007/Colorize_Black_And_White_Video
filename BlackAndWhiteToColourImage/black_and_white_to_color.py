@@ -9,6 +9,7 @@ from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 import glob
 
 fps = 30.0
+current_progress = 0.0
 
 #--------Model file paths--------#
 proto_file = 'models\colorization_deploy_v2.prototxt'
@@ -28,6 +29,10 @@ net.getLayer(class8).blobs = [pts.astype("float32")]
 net.getLayer(conv8).blobs = [np.full([1, 313], 2.606, dtype="float32")]
 #-----------------------------------#---------------------#
 
+current_progress = 0.0
+
+def get_progress():
+    return current_progress
 
 
 def convert(img, path, img_name):
@@ -78,6 +83,8 @@ def convert(img, path, img_name):
 
 
 def videoConvert(video_name, width = 500):
+    global current_progress
+    
     
     vs = cv2.VideoCapture(video_name)
 
@@ -102,6 +109,7 @@ def videoConvert(video_name, width = 500):
         count += 1
 
         progress = count / frame_count * 100
+        current_progress = progress * 0.95
         print("%.2f" % progress)
         
 
@@ -138,6 +146,8 @@ def convert_frames_to_video(pathIn, pathOut, fps):
 
 
 def colorBAWVideo(input_path, pathOut):
+    global current_progress
+    current_progress = 0.0
 
     videoConvert(input_path)
 
@@ -174,10 +184,14 @@ def colorBAWVideo(input_path, pathOut):
     for f in files:
         os.remove(f)
 
+    current_progress = 100.0
+    
+
+
 
 
 
 input_video = "./input_video/india.mp4"
 output_video = "./output/colored_india_extended.mp4" #path to video + video title
 
-colorBAWVideo(input_video, output_video)
+#colorBAWVideo(input_video, output_video)
